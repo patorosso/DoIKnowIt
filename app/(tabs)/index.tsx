@@ -1,74 +1,225 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import React, { useState, useEffect } from "react";
+import { Song } from "@/constants/Types";
+import {
+  View,
+  Text,
+  Image,
+  FlatList,
+  StyleSheet,
+  SafeAreaView,
+  TouchableOpacity,
+} from "react-native";
+import { useSQLiteContext } from "expo-sqlite";
+import {
+  getImageSource,
+  groupSongs,
+  handleTitleTextLengthStyle,
+} from "@/functions/homeScreen";
+import { useSongs } from "@/context/SongContext";
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+export default function HomeScreen(): JSX.Element {
+  const db = useSQLiteContext();
+  const { reload } = useSongs();
+  const [songs, setSongs] = useState<Song[]>([]);
+  const [groupedBy, setGroupedBy] = useState<"artist" | "genre" | "title">(
+    "artist"
+  );
 
-export default function HomeScreen() {
+  useEffect(() => {
+    const fetchSongs = async () => {
+      const dbSongs = await db.getAllAsync<Song>("SELECT * FROM songs");
+
+      const songsWithImages = await Promise.all(
+        dbSongs.map(async (song) => ({
+          ...song,
+          localImageSource: await getImageSource(song.albumCover),
+        }))
+      );
+
+      setSongs(songsWithImages);
+    };
+
+    fetchSongs();
+  }, [reload]);
+
+  const groupedSongs = groupSongs(groupedBy, songs);
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
+    <SafeAreaView style={styles.container}>
+      <View style={styles.sortingContainer}>
+        <Text style={styles.mainText}>Do I know it?</Text>
+        <View
+          style={{
+            height: 2,
+            backgroundColor: "#A9A9A9",
+            marginBottom: 16,
+            width: "70%",
+          }}
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12'
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+
+        <View style={styles.chipContainer}>
+          <TouchableOpacity
+            style={[styles.chip, groupedBy === "artist" && styles.activeChip]}
+            onPress={() => setGroupedBy("artist")}
+          >
+            <Text
+              style={[
+                styles.chipText,
+                groupedBy === "artist" && styles.activeChipText,
+              ]}
+            >
+              Artist
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.chip, groupedBy === "title" && styles.activeChip]}
+            onPress={() => setGroupedBy("title")}
+          >
+            <Text
+              style={[
+                styles.chipText,
+                groupedBy === "title" && styles.activeChipText,
+              ]}
+            >
+              Song Name
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.chip, groupedBy === "genre" && styles.activeChip]}
+            onPress={() => setGroupedBy("genre")}
+          >
+            <Text
+              style={[
+                styles.chipText,
+                groupedBy === "genre" && styles.activeChipText,
+              ]}
+            >
+              Genre
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      <FlatList
+        data={groupedSongs}
+        keyExtractor={(item) => item[0]}
+        renderItem={({ item }) => {
+          const [groupName, songs] = item;
+          return (
+            <View style={styles.groupBox}>
+              <Text style={styles.groupTitle}>{groupName}</Text>
+              {songs.map((song) => (
+                <View key={song.id} style={styles.songItem}>
+                  <Image
+                    source={song.localImageSource}
+                    style={styles.songImage}
+                  />
+                  <View>
+                    <Text style={handleTitleTextLengthStyle(song.title)}>
+                      {song.title}
+                    </Text>
+                    <Text style={styles.songArtist}>{song.artist}</Text>
+                  </View>
+                </View>
+              ))}
+            </View>
+          );
+        }}
+      />
+      {/* <Text style={styles.sortingText}>
+        Pato can play anything on this list
+      </Text>
+      <Text style={styles.sortingTextSubtitle}>
+        (If you don't find what you want, ask him to learn it)
+      </Text> */}
+    </SafeAreaView>
   );
 }
 
+// --------------------- Styles ----------------------
+
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: {
+    flex: 1,
+    backgroundColor: "#1C1C1E",
+    paddingTop: 60,
   },
-  stepContainer: {
-    gap: 8,
+  sortingContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  mainText: {
+    color: "#FFFFFF",
+    fontSize: 30,
     marginBottom: 8,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  sortingText: {
+    color: "#FFFFFF",
+    fontSize: 20,
+    marginBottom: 8,
+  },
+  sortingTextSubtitle: {
+    color: "#FFFFFF",
+    fontSize: 10,
+    marginBottom: 16,
+  },
+  chipContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 0,
+  },
+  chip: {
+    backgroundColor: "#3C3C3E",
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+  },
+  activeChip: {
+    backgroundColor: "#007AFF", // Blue background for the selected chip
+  },
+  chipText: {
+    color: "#A9A9A9",
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  activeChipText: {
+    color: "#FFFFFF", // White text for the selected chip
+  },
+  groupBox: {
+    backgroundColor: "#2C2C2E",
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    marginHorizontal: 16,
+    marginBottom: 16,
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    elevation: 3,
+  },
+  groupTitle: {
+    fontSize: 20,
+    color: "#FFFFFF",
+    marginBottom: 12,
+    fontWeight: "bold",
+  },
+  songItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  songImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    marginRight: 12,
+  },
+
+  songArtist: {
+    color: "#A9A9A9",
+    fontSize: 14,
   },
 });
