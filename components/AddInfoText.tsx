@@ -45,11 +45,11 @@ const styles = StyleSheet.create({
   container: {
     alignItems: "center",
     marginBottom: 16,
-    marginTop: 150,
+    marginTop: 110,
   },
   icon: {
-    width: 100,
-    height: 100,
+    width: 180,
+    height: 180,
   },
   infoText: {
     color: "#b7adcf",
