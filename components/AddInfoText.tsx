@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Image } from "react-native";
 import { useSQLiteContext } from "expo-sqlite";
 
 const AddInfoText = () => {
@@ -23,6 +23,11 @@ const AddInfoText = () => {
 
   return (
     <View style={styles.container}>
+      <Image
+        source={require("@/assets/images/app_icon_dark.png")}
+        style={styles.icon}
+        resizeMode="contain"
+      />
       <Text>
         <Text style={styles.infoSubtitle}>Pato currently knows </Text>
         <Text style={styles.infoCount}>{songCount}</Text>
@@ -40,7 +45,11 @@ const styles = StyleSheet.create({
   container: {
     alignItems: "center",
     marginBottom: 16,
-    marginTop: 200,
+    marginTop: 150,
+  },
+  icon: {
+    width: 100,
+    height: 100,
   },
   infoText: {
     color: "#b7adcf",
