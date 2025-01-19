@@ -97,7 +97,7 @@ export default function AddScreen() {
       `INSERT INTO songs (title, artist, album, albumCover) VALUES (?, ?, ?, ?)`,
       [songData.title, songData.artist, songData.album, fileName!]
     );
-    ToastAndroid.show(fileName!, ToastAndroid.LONG);
+    ToastAndroid.show("Successfully added song!", ToastAndroid.LONG);
     setReload({});
     setModalVisible(false);
     clearSearch();
