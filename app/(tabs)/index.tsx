@@ -10,16 +10,13 @@ import { Text, View } from "@/components/Themed";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useSQLiteContext } from "expo-sqlite";
 import { useSongs } from "@/context/SongContext";
+import { SongModal } from "@/components/SongModal";
 import { Song } from "@/constants/Types";
-import {
-  getImageSource,
-  groupSongs,
-  handleTitleTextLengthStyle,
-} from "@/functions/homeScreen";
+import { getImageSource, groupSongs } from "@/functions/homeScreen";
 
 export default function TabOneScreen() {
   const db = useSQLiteContext();
-  const { reload } = useSongs();
+  const { reload, setReload } = useSongs();
   const [songs, setSongs] = useState<Song[]>([]);
   const [groupedBy, setGroupedBy] = useState<"artist" | "album" | "title">(
     "artist"
@@ -27,21 +24,20 @@ export default function TabOneScreen() {
   const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>(
     {}
   );
+  const [selectedSong, setSelectedSong] = useState<Song | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
 
   useEffect(() => {
     const fetchSongs = async () => {
       const dbSongs = await db.getAllAsync<Song>("SELECT * FROM songs");
-
       const songsWithImages = await Promise.all(
         dbSongs.map(async (song) => ({
           ...song,
           localImageSource: await getImageSource(song.albumCover),
         }))
       );
-
       setSongs(songsWithImages);
     };
-
     fetchSongs();
   }, [reload]);
 
@@ -52,6 +48,26 @@ export default function TabOneScreen() {
       ...prev,
       [groupName]: !prev[groupName],
     }));
+  };
+
+  const handleUpdateSong = async (updatedSong: any) => {
+    await db.runAsync(
+      `UPDATE songs SET title = ?, artist = ?, album = ? WHERE id = ?`,
+      [
+        updatedSong.title,
+        updatedSong.artist,
+        updatedSong.album,
+        selectedSong?.id,
+      ]
+    );
+    setModalVisible(false);
+    setReload({});
+  };
+
+  const handleDeleteSong = async () => {
+    await db.runAsync(`DELETE FROM songs WHERE id = ?`, [selectedSong?.id!]);
+    setModalVisible(false);
+    setReload({});
   };
 
   return (
@@ -110,7 +126,6 @@ export default function TabOneScreen() {
           </TouchableOpacity>
         </View>
       </View>
-
       <FlatList
         data={groupedSongs}
         keyExtractor={(item) => item[0]}
@@ -120,7 +135,6 @@ export default function TabOneScreen() {
 
           return (
             <View style={styles.groupBox}>
-              {/* Group Header with Toggle Icon */}
               <TouchableOpacity
                 style={styles.groupHeader}
                 onPress={() => toggleGroup(groupName)}
@@ -132,31 +146,51 @@ export default function TabOneScreen() {
                   color="#FFFFFF"
                 />
               </TouchableOpacity>
-
-              {/* Group Content */}
               {isExpanded &&
                 songs.map((song) => (
-                  <View key={song.id} style={styles.songItem}>
-                    <Image
-                      source={song.localImageSource}
-                      style={styles.songImage}
-                    />
-                    <View style={styles.songName}>
-                      <Text style={handleTitleTextLengthStyle(song.title)}>
-                        {song.title}
-                      </Text>
-                      <Text style={styles.songArtist}>{song.artist}</Text>
+                  <TouchableOpacity
+                    key={song.id}
+                    onPress={() => {
+                      setSelectedSong(song);
+                      setModalVisible(true);
+                    }}
+                  >
+                    <View style={styles.songItem}>
+                      <Image
+                        source={song.localImageSource}
+                        style={styles.songImage}
+                      />
+                      <View style={styles.songName}>
+                        <Text>{song.title}</Text>
+                        <Text>{song.artist}</Text>
+                      </View>
                     </View>
-                  </View>
+                  </TouchableOpacity>
                 ))}
             </View>
           );
         }}
       />
+      {selectedSong && (
+        <SongModal
+          song={{
+            title: selectedSong.title,
+            artist: { name: selectedSong.artist },
+            album: {
+              title: selectedSong.album,
+              cover_medium: selectedSong.albumCover,
+            },
+          }}
+          visible={modalVisible}
+          editMode={true}
+          onSave={handleUpdateSong}
+          onDelete={handleDeleteSong}
+          onClose={() => setModalVisible(false)}
+        />
+      )}
     </SafeAreaView>
   );
 }
-
 // --------------------- Styles ----------------------
 const styles = StyleSheet.create({
   container: {
@@ -174,7 +208,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
   },
   titleText: {
-    fontSize: 30,
+    fontSize: 45,
     fontWeight: "bold",
   },
   doText: {
@@ -188,7 +222,7 @@ const styles = StyleSheet.create({
     fontVariant: ["small-caps"],
   },
   signText: {
-    fontSize: 25,
+    fontSize: 36,
     color: "#b7adcf",
   },
   sortingContainer: {

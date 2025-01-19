@@ -22,6 +22,7 @@ interface SongModalProps {
     album: string;
     albumCover: string;
   }) => void;
+  onDelete?: () => void;
   song: any;
   editMode?: boolean;
 }
@@ -30,6 +31,7 @@ export const SongModal: React.FC<SongModalProps> = ({
   visible,
   onClose,
   onSave,
+  onDelete,
   song,
   editMode = false,
 }) => {
@@ -47,7 +49,7 @@ export const SongModal: React.FC<SongModalProps> = ({
     }
   }, [song]);
 
-  const handleSave = () => {
+  const handleUpdate = () => {
     onSave({ title, artist, album, albumCover });
     onClose();
   };
@@ -79,6 +81,7 @@ export const SongModal: React.FC<SongModalProps> = ({
                 />
               ) : null}
 
+              {/* Input Fields */}
               <View style={styles.inputContainer}>
                 <Text style={styles.label}>Song Name</Text>
                 <TextInput
@@ -109,14 +112,31 @@ export const SongModal: React.FC<SongModalProps> = ({
                   placeholderTextColor="#A9A9A9"
                 />
               </View>
-              {!editMode ? (
+
+              {/* Buttons */}
+              {editMode ? (
+                <View style={styles.buttonRow}>
+                  <TouchableOpacity
+                    style={[styles.button, styles.updateButton]}
+                    onPress={handleUpdate}
+                  >
+                    <Text style={styles.buttonText}>Update</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.button, styles.deleteButton]}
+                    onPress={onDelete}
+                  >
+                    <Text style={styles.buttonText}>Delete</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
                 <TouchableOpacity
                   style={styles.saveButton}
-                  onPress={handleSave}
+                  onPress={handleUpdate}
                 >
                   <Text style={styles.saveButtonText}>Save</Text>
                 </TouchableOpacity>
-              ) : null}
+              )}
             </View>
           </TouchableWithoutFeedback>
         </KeyboardAvoidingView>
@@ -125,7 +145,7 @@ export const SongModal: React.FC<SongModalProps> = ({
   );
 };
 
-// --------------------- Styles ----------------------
+// ---------------- Styles ----------------
 
 const styles = StyleSheet.create({
   modalContainer: {
@@ -205,6 +225,27 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "600",
   },
+  buttonRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
+  },
+  button: {
+    paddingVertical: 9,
+    paddingHorizontal: 24,
+    borderRadius: 10,
+    width: "48%",
+    alignItems: "center",
+  },
+  updateButton: {
+    backgroundColor: "#09A9A9",
+  },
+  deleteButton: {
+    backgroundColor: "#FF0000",
+  },
+  buttonText: {
+    color: "#FFFFFF",
+    fontSize: 18,
+    fontWeight: "600",
+  },
 });
-
-export default SongModal;
