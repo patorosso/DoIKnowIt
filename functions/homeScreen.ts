@@ -29,7 +29,7 @@ export const getImageSource = async (
   const fileInfo = await FileSystem.getInfoAsync(filePath);
 
   if (fileInfo.exists) {
-    return { uri: filePath }; // Local file exists
+    return { uri: filePath };
   }
 
   return require("@/assets/images/react-logo.png");
