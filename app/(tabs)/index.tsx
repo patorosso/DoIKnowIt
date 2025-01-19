@@ -75,10 +75,9 @@ export default function TabOneScreen() {
       <View style={styles.sortingContainer}>
         <View style={styles.appTitle}>
           <Text style={styles.titleText}>
-            <Text style={styles.doText}>do i </Text>
+            <Text style={styles.doText}>i </Text>
             <Text style={styles.knowText}>know</Text>
-            <Text style={styles.doText}> it</Text>
-            <Text style={styles.signText}> ?</Text>
+            <Text style={styles.doText}> these</Text>
           </Text>
         </View>
 

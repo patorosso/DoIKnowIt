@@ -107,9 +107,8 @@ export default function AddScreen() {
     <View style={styles.container}>
       <View style={styles.addTitle}>
         <Text style={styles.titleText}>
-          <Text style={styles.andThisText}>and this </Text>
-          <Text style={styles.oneText}>one</Text>
-          <Text style={styles.signText}> ?</Text>
+          <Text style={styles.oneText}>add </Text>
+          <Text style={styles.andThisText}>one more</Text>
         </Text>
       </View>
 
@@ -216,22 +215,27 @@ const styles = StyleSheet.create({
     fontSize: 36,
     color: "#b7adcf",
   },
-  searchIcon: {
-    marginRight: 8,
-  },
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#2C2C2E",
     borderRadius: 10,
     paddingHorizontal: 12,
-    paddingVertical: 5,
+    height: 50,
     marginBottom: 16,
   },
+
   input: {
     flex: 1,
     color: "#FFFFFF",
     fontSize: 16,
+    height: "100%",
+    justifyContent: "center",
+  },
+
+  searchIcon: {
+    marginRight: 8,
+    alignSelf: "center",
   },
   clearButton: {
     marginLeft: 8,
