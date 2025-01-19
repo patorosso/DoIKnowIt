@@ -23,6 +23,7 @@ interface SongModalProps {
     albumCover: string;
   }) => void;
   song: any;
+  editMode?: boolean;
 }
 
 export const SongModal: React.FC<SongModalProps> = ({
@@ -30,6 +31,7 @@ export const SongModal: React.FC<SongModalProps> = ({
   onClose,
   onSave,
   song,
+  editMode = false,
 }) => {
   const [title, setTitle] = useState("");
   const [artist, setArtist] = useState("");
@@ -107,10 +109,14 @@ export const SongModal: React.FC<SongModalProps> = ({
                   placeholderTextColor="#A9A9A9"
                 />
               </View>
-              {/* Save Button */}
-              <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-                <Text style={styles.saveButtonText}>Save</Text>
-              </TouchableOpacity>
+              {!editMode ? (
+                <TouchableOpacity
+                  style={styles.saveButton}
+                  onPress={handleSave}
+                >
+                  <Text style={styles.saveButtonText}>Save</Text>
+                </TouchableOpacity>
+              ) : null}
             </View>
           </TouchableWithoutFeedback>
         </KeyboardAvoidingView>
