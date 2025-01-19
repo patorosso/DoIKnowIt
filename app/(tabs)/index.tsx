@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from "react";
 import {
   FlatList,
   SafeAreaView,
@@ -5,11 +6,10 @@ import {
   TouchableOpacity,
   Image,
 } from "react-native";
-import EditScreenInfo from "@/components/EditScreenInfo";
 import { Text, View } from "@/components/Themed";
+import { MaterialIcons } from "@expo/vector-icons";
 import { useSQLiteContext } from "expo-sqlite";
 import { useSongs } from "@/context/SongContext";
-import { useEffect, useState } from "react";
 import { Song } from "@/constants/Types";
 import {
   getImageSource,
@@ -21,8 +21,11 @@ export default function TabOneScreen() {
   const db = useSQLiteContext();
   const { reload } = useSongs();
   const [songs, setSongs] = useState<Song[]>([]);
-  const [groupedBy, setGroupedBy] = useState<"artist" | "genre" | "title">(
+  const [groupedBy, setGroupedBy] = useState<"artist" | "album" | "title">(
     "artist"
+  );
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>(
+    {}
   );
 
   useEffect(() => {
@@ -43,18 +46,27 @@ export default function TabOneScreen() {
   }, [reload]);
 
   const groupedSongs = groupSongs(groupedBy, songs);
+
+  const toggleGroup = (groupName: string) => {
+    setExpandedGroups((prev) => ({
+      ...prev,
+      [groupName]: !prev[groupName],
+    }));
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.sortingContainer}>
-        <Text style={styles.mainText}>Do I know it?</Text>
-        <View
-          style={{
-            height: 1,
-            backgroundColor: "#A9A9A9",
-            marginBottom: 16,
-            width: "100%",
-          }}
-        />
+        <View style={styles.appTitle}>
+          <Text style={styles.titleText}>
+            <Text style={styles.doText}>do i </Text>
+            <Text style={styles.knowText}>know</Text>
+            <Text style={styles.doText}> it</Text>
+            <Text style={styles.signText}> ?</Text>
+          </Text>
+        </View>
+
+        <View style={{ height: 1, marginBottom: 32, width: "100%" }} />
 
         <View style={styles.chipContainer}>
           <TouchableOpacity
@@ -80,20 +92,20 @@ export default function TabOneScreen() {
                 groupedBy === "title" && styles.activeChipText,
               ]}
             >
-              Song Name
+              Song name
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.chip, groupedBy === "genre" && styles.activeChip]}
-            onPress={() => setGroupedBy("genre")}
+            style={[styles.chip, groupedBy === "album" && styles.activeChip]}
+            onPress={() => setGroupedBy("album")}
           >
             <Text
               style={[
                 styles.chipText,
-                groupedBy === "genre" && styles.activeChipText,
+                groupedBy === "album" && styles.activeChipText,
               ]}
             >
-              Genre
+              Album
             </Text>
           </TouchableOpacity>
         </View>
@@ -104,63 +116,84 @@ export default function TabOneScreen() {
         keyExtractor={(item) => item[0]}
         renderItem={({ item }) => {
           const [groupName, songs] = item;
+          const isExpanded = expandedGroups[groupName] || false;
+
           return (
             <View style={styles.groupBox}>
-              <Text style={styles.groupTitle}>{groupName}</Text>
-              {songs.map((song) => (
-                <View key={song.id} style={styles.songItem}>
-                  <Image
-                    source={song.localImageSource}
-                    style={styles.songImage}
-                  />
-                  <View style={styles.songName}>
-                    <Text style={handleTitleTextLengthStyle(song.title)}>
-                      {song.title}
-                    </Text>
-                    <Text style={styles.songArtist}>{song.artist}</Text>
+              {/* Group Header with Toggle Icon */}
+              <TouchableOpacity
+                style={styles.groupHeader}
+                onPress={() => toggleGroup(groupName)}
+              >
+                <Text style={styles.groupTitle}>{groupName}</Text>
+                <MaterialIcons
+                  name={isExpanded ? "expand-less" : "expand-more"}
+                  size={24}
+                  color="#FFFFFF"
+                />
+              </TouchableOpacity>
+
+              {/* Group Content */}
+              {isExpanded &&
+                songs.map((song) => (
+                  <View key={song.id} style={styles.songItem}>
+                    <Image
+                      source={song.localImageSource}
+                      style={styles.songImage}
+                    />
+                    <View style={styles.songName}>
+                      <Text style={handleTitleTextLengthStyle(song.title)}>
+                        {song.title}
+                      </Text>
+                      <Text style={styles.songArtist}>{song.artist}</Text>
+                    </View>
                   </View>
-                </View>
-              ))}
+                ))}
             </View>
           );
         }}
       />
-      {/* <Text style={styles.sortingText}>
-      Pato can play anything on this list
-    </Text>
-    <Text style={styles.sortingTextSubtitle}>
-      (If you don't find what you want, ask him to learn it)
-    </Text> */}
     </SafeAreaView>
   );
 }
 
 // --------------------- Styles ----------------------
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#151718",
-    paddingTop: 60,
+    paddingTop: 40,
+  },
+  appTitle: {
+    backgroundColor: "#151718",
+    width: "100%",
+    alignItems: "center",
+    paddingBottom: 16,
+    paddingTop: 26,
+    borderBottomColor: "#b7adcf",
+    borderBottomWidth: 1,
+  },
+  titleText: {
+    fontSize: 30,
+    fontWeight: "bold",
+  },
+  doText: {
+    color: "#b7adcf",
+    fontStyle: "normal",
+    fontVariant: ["small-caps"],
+  },
+  knowText: {
+    color: "#09A9A9",
+    fontStyle: "normal",
+    fontVariant: ["small-caps"],
+  },
+  signText: {
+    fontSize: 25,
+    color: "#b7adcf",
   },
   sortingContainer: {
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 16,
-  },
-  mainText: {
-    color: "#FFFFFF",
-    fontSize: 30,
-    marginBottom: 8,
-  },
-  sortingText: {
-    color: "#FFFFFF",
-    fontSize: 20,
-    marginBottom: 8,
-  },
-  sortingTextSubtitle: {
-    color: "#FFFFFF",
-    fontSize: 10,
     marginBottom: 16,
   },
   chipContainer: {
@@ -168,7 +201,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     gap: 8,
-    marginBottom: 0,
+    marginBottom: 16,
   },
   chip: {
     backgroundColor: "#3C3C3E",
@@ -177,7 +210,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   activeChip: {
-    backgroundColor: "#007AFF",
+    backgroundColor: "#09A9A9",
   },
   chipText: {
     color: "#A9A9A9",
@@ -186,6 +219,12 @@ const styles = StyleSheet.create({
   },
   activeChipText: {
     color: "#FFFFFF",
+  },
+  groupHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingBottom: 8,
   },
   groupBox: {
     backgroundColor: "#1b1b1c",
@@ -201,7 +240,7 @@ const styles = StyleSheet.create({
   },
   groupTitle: {
     fontSize: 20,
-    color: "#FFFFFF",
+    color: "#b7adcf",
     marginBottom: 12,
     fontWeight: "bold",
   },
@@ -214,7 +253,7 @@ const styles = StyleSheet.create({
   songImage: {
     width: 50,
     height: 50,
-    borderRadius: 25,
+    borderRadius: 5,
     marginRight: 12,
   },
   songName: {

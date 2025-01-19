@@ -2,7 +2,7 @@ import { Song } from "@/constants/Types";
 import * as FileSystem from "expo-file-system";
 
 export const groupSongs = (
-  category: "artist" | "genre" | "title",
+  category: "artist" | "album" | "title",
   songs: Song[]
 ): [string, Song[]][] => {
   const grouped = songs.reduce((acc: Record<string, Song[]>, song: Song) => {

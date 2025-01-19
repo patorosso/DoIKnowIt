@@ -8,11 +8,14 @@ import {
   StyleSheet,
   ActivityIndicator,
   TouchableOpacity,
+  ToastAndroid,
 } from "react-native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useSQLiteContext } from "expo-sqlite";
 import { SongModal } from "@/components/SongModal";
 import { useSongs } from "@/context/SongContext";
+import AddInfoText from "@/components/AddInfoText";
+import * as FileSystem from "expo-file-system";
 
 export default function AddScreen() {
   const db = useSQLiteContext();
@@ -71,12 +74,30 @@ export default function AddScreen() {
   const handleSaveSong = async (songData: {
     title: string;
     artist: string;
-    genre: string;
+    album: string;
+    albumCover: string;
   }) => {
-    await db.runAsync(
-      `INSERT INTO songs (title, artist, genre, albumCover) VALUES (?, ?, ?, ?)`,
-      [songData.title, songData.artist, songData.genre, ""]
+    var fileName = `${songData.title.toLocaleLowerCase()}-${songData.artist.toLocaleLowerCase()}`;
+    fileName += Math.floor(Math.random() * 1000000);
+    fileName += songData.albumCover.substring(
+      songData.albumCover.lastIndexOf(".")
     );
+    fileName = fileName.replace(/[^a-z0-9.]/gi, "_"); // special characters cleaning
+    const filePath = `${FileSystem.documentDirectory}${fileName}`;
+
+    try {
+      await FileSystem.downloadAsync(songData.albumCover, filePath);
+    } catch (error) {
+      ToastAndroid.show(
+        "Error while downloading album cover",
+        ToastAndroid.SHORT
+      );
+    }
+    await db.runAsync(
+      `INSERT INTO songs (title, artist, album, albumCover) VALUES (?, ?, ?, ?)`,
+      [songData.title, songData.artist, songData.album, fileName!]
+    );
+    ToastAndroid.show(fileName!, ToastAndroid.LONG);
     setReload({});
     setModalVisible(false);
     clearSearch();
@@ -88,7 +109,7 @@ export default function AddScreen() {
         <TextInput
           style={styles.input}
           placeholder="Search by song, artist or album..."
-          placeholderTextColor="#A9A9A9"
+          placeholderTextColor="#b7adcf"
           value={query}
           onChangeText={handleInputChange}
           onSubmitEditing={searchSongs}
@@ -131,7 +152,9 @@ export default function AddScreen() {
         ListEmptyComponent={
           !loading && query && noResults ? (
             <Text style={styles.emptyText}>No results found</Text>
-          ) : null
+          ) : (
+            <AddInfoText />
+          )
         }
       />
       {selectedSong && (
@@ -172,9 +195,9 @@ const styles = StyleSheet.create({
   },
   clearButton: {
     marginLeft: 8,
-    backgroundColor: "#FF3B30",
-    padding: 8,
-    borderRadius: 20,
+    backgroundColor: "#b7adcf",
+    padding: 11,
+    borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -182,12 +205,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 16,
     paddingHorizontal: 10,
+    marginTop: 16,
   },
   divider: {
     height: 2,
-    backgroundColor: "#A9A9A9",
+    backgroundColor: "#09A9A9",
     marginBottom: 16,
-    width: "50%",
+    width: "100%",
   },
   resultItem: {
     flexDirection: "row",

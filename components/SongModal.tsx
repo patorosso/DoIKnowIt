@@ -4,18 +4,24 @@ import {
   TextInput,
   StyleSheet,
   Image,
-  Button,
   Modal,
   KeyboardAvoidingView,
   TouchableWithoutFeedback,
   Keyboard,
+  TouchableOpacity,
+  Text,
 } from "react-native";
-import { Picker } from "@react-native-picker/picker";
+import { MaterialIcons } from "@expo/vector-icons";
 
 interface SongModalProps {
   visible: boolean;
   onClose: () => void;
-  onSave: (songData: { title: string; artist: string; genre: string }) => void;
+  onSave: (songData: {
+    title: string;
+    artist: string;
+    album: string;
+    albumCover: string;
+  }) => void;
   song: any;
 }
 
@@ -27,17 +33,20 @@ export const SongModal: React.FC<SongModalProps> = ({
 }) => {
   const [title, setTitle] = useState("");
   const [artist, setArtist] = useState("");
-  const [genre, setGenre] = useState("Rock");
+  const [album, setAlbum] = useState("");
   const [albumCover, setAlbumCover] = useState("");
 
   useEffect(() => {
-    setTitle(song.title);
-    setArtist(song.artist.name);
-    setAlbumCover(song.album.cover_medium);
+    if (song) {
+      setTitle(song.title);
+      setArtist(song.artist.name);
+      setAlbum(song.album.title);
+      setAlbumCover(song.album.cover_medium);
+    }
   }, [song]);
 
   const handleSave = () => {
-    onSave({ title, artist, genre });
+    onSave({ title, artist, album, albumCover });
     onClose();
   };
 
@@ -55,6 +64,12 @@ export const SongModal: React.FC<SongModalProps> = ({
         >
           <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <View style={styles.modalContent}>
+              {/* Close Button */}
+              <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+                <MaterialIcons name="close" size={24} color="#FFFFFF" />
+              </TouchableOpacity>
+
+              {/* Album Cover */}
               {albumCover ? (
                 <Image
                   source={{ uri: albumCover }}
@@ -62,32 +77,40 @@ export const SongModal: React.FC<SongModalProps> = ({
                 />
               ) : null}
 
-              <TextInput
-                style={styles.modalInput}
-                value={title}
-                onChangeText={setTitle}
-                placeholder="Song Title"
-                placeholderTextColor="#A9A9A9"
-              />
-              <TextInput
-                style={styles.modalInput}
-                value={artist}
-                onChangeText={setArtist}
-                placeholder="Artist Name"
-                placeholderTextColor="#A9A9A9"
-              />
-              <Picker
-                selectedValue={genre}
-                style={styles.modalPicker}
-                onValueChange={(itemValue) => setGenre(itemValue)}
-              >
-                <Picker.Item label="Rock" value="Rock" />
-                <Picker.Item label="Pop" value="Pop" />
-                <Picker.Item label="Hip Hop" value="Hip Hop" />
-                <Picker.Item label="Jazz" value="Jazz" />
-                <Picker.Item label="Classical" value="Classical" />
-              </Picker>
-              <Button title="Save" onPress={handleSave} />
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Song Name</Text>
+                <TextInput
+                  style={styles.modalInput}
+                  value={title}
+                  onChangeText={setTitle}
+                  placeholder="Enter song name"
+                  placeholderTextColor="#A9A9A9"
+                />
+              </View>
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Artist</Text>
+                <TextInput
+                  style={styles.modalInput}
+                  value={artist}
+                  onChangeText={setArtist}
+                  placeholder="Enter artist name"
+                  placeholderTextColor="#A9A9A9"
+                />
+              </View>
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Album</Text>
+                <TextInput
+                  style={styles.modalInput}
+                  value={album}
+                  onChangeText={setAlbum}
+                  placeholder="Enter album name"
+                  placeholderTextColor="#A9A9A9"
+                />
+              </View>
+              {/* Save Button */}
+              <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+                <Text style={styles.saveButtonText}>Save</Text>
+              </TouchableOpacity>
             </View>
           </TouchableWithoutFeedback>
         </KeyboardAvoidingView>
@@ -95,6 +118,8 @@ export const SongModal: React.FC<SongModalProps> = ({
     </Modal>
   );
 };
+
+// --------------------- Styles ----------------------
 
 const styles = StyleSheet.create({
   modalContainer: {
@@ -105,16 +130,37 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     width: "90%",
-    backgroundColor: "#2C2C2E",
-    padding: 20,
+    backgroundColor: "#1C1C1E",
+    padding: 27,
     borderRadius: 10,
     alignItems: "center",
+    position: "relative",
+  },
+  closeButton: {
+    position: "absolute",
+    top: 10,
+    right: 10,
+    zIndex: 1,
   },
   modalAlbumCover: {
     width: 150,
     height: 150,
-    borderRadius: 75, // This makes the image circular
+    borderRadius: 10,
+    marginBottom: 32,
+    marginTop: 20,
+    borderWidth: 2,
+    borderColor: "#FFFFFF",
+  },
+  inputContainer: {
+    width: "100%",
     marginBottom: 16,
+  },
+  label: {
+    color: "#A9A9A9",
+    fontSize: 13,
+    paddingLeft: 8,
+    fontWeight: "600",
+    marginBottom: 4,
   },
   modalInput: {
     backgroundColor: "#1C1C1E",
@@ -123,15 +169,35 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     fontSize: 16,
-    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: "grey",
     width: "100%",
+  },
+  pickerContainer: {
+    backgroundColor: "#1C1C1E",
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "grey",
   },
   modalPicker: {
     color: "#FFFFFF",
-    backgroundColor: "#1C1C1E",
-    borderRadius: 10,
-    marginBottom: 16,
     width: "100%",
+    height: 60,
+    paddingVertical: 10,
+  },
+  saveButton: {
+    backgroundColor: "#09A9A9",
+    borderRadius: 10,
+    marginTop: 16,
+    paddingVertical: 9,
+    paddingHorizontal: 24,
+    alignItems: "center",
+    width: "100%",
+  },
+  saveButtonText: {
+    color: "#FFFFFF",
+    fontSize: 18,
+    fontWeight: "600",
   },
 });
 

@@ -59,7 +59,7 @@ async function migrateDbIfNeeded(db: SQLiteDatabase): Promise<void> {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         title TEXT,
         artist TEXT,
-        genre TEXT,
+        album TEXT,
         albumCover TEXT
       );
     `);
