@@ -1,23 +1,23 @@
-import React, { useState, useEffect } from "react";
-import { Song } from "@/constants/Types";
 import {
-  View,
-  Text,
-  Image,
   FlatList,
-  StyleSheet,
   SafeAreaView,
+  StyleSheet,
   TouchableOpacity,
+  Image,
 } from "react-native";
+import EditScreenInfo from "@/components/EditScreenInfo";
+import { Text, View } from "@/components/Themed";
 import { useSQLiteContext } from "expo-sqlite";
+import { useSongs } from "@/context/SongContext";
+import { useEffect, useState } from "react";
+import { Song } from "@/constants/Types";
 import {
   getImageSource,
   groupSongs,
   handleTitleTextLengthStyle,
 } from "@/functions/homeScreen";
-import { useSongs } from "@/context/SongContext";
 
-export default function HomeScreen(): JSX.Element {
+export default function TabOneScreen() {
   const db = useSQLiteContext();
   const { reload } = useSongs();
   const [songs, setSongs] = useState<Song[]>([]);
@@ -43,17 +43,16 @@ export default function HomeScreen(): JSX.Element {
   }, [reload]);
 
   const groupedSongs = groupSongs(groupedBy, songs);
-
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.sortingContainer}>
         <Text style={styles.mainText}>Do I know it?</Text>
         <View
           style={{
-            height: 2,
+            height: 1,
             backgroundColor: "#A9A9A9",
             marginBottom: 16,
-            width: "70%",
+            width: "100%",
           }}
         />
 
@@ -114,7 +113,7 @@ export default function HomeScreen(): JSX.Element {
                     source={song.localImageSource}
                     style={styles.songImage}
                   />
-                  <View>
+                  <View style={styles.songName}>
                     <Text style={handleTitleTextLengthStyle(song.title)}>
                       {song.title}
                     </Text>
@@ -127,11 +126,11 @@ export default function HomeScreen(): JSX.Element {
         }}
       />
       {/* <Text style={styles.sortingText}>
-        Pato can play anything on this list
-      </Text>
-      <Text style={styles.sortingTextSubtitle}>
-        (If you don't find what you want, ask him to learn it)
-      </Text> */}
+      Pato can play anything on this list
+    </Text>
+    <Text style={styles.sortingTextSubtitle}>
+      (If you don't find what you want, ask him to learn it)
+    </Text> */}
     </SafeAreaView>
   );
 }
@@ -141,7 +140,7 @@ export default function HomeScreen(): JSX.Element {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#1C1C1E",
+    backgroundColor: "#151718",
     paddingTop: 60,
   },
   sortingContainer: {
@@ -178,7 +177,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   activeChip: {
-    backgroundColor: "#007AFF", // Blue background for the selected chip
+    backgroundColor: "#007AFF",
   },
   chipText: {
     color: "#A9A9A9",
@@ -186,10 +185,10 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   activeChipText: {
-    color: "#FFFFFF", // White text for the selected chip
+    color: "#FFFFFF",
   },
   groupBox: {
-    backgroundColor: "#2C2C2E",
+    backgroundColor: "#1b1b1c",
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingTop: 16,
@@ -210,6 +209,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 16,
+    backgroundColor: "#1b1b1c",
   },
   songImage: {
     width: 50,
@@ -217,7 +217,9 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     marginRight: 12,
   },
-
+  songName: {
+    backgroundColor: "#1b1b1c",
+  },
   songArtist: {
     color: "#A9A9A9",
     fontSize: 14,
