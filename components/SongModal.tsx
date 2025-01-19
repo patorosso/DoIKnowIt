@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
   Text,
 } from "react-native";
+import * as FileSystem from "expo-file-system";
 import { MaterialIcons } from "@expo/vector-icons";
 
 interface SongModalProps {
@@ -45,7 +46,13 @@ export const SongModal: React.FC<SongModalProps> = ({
       setTitle(song.title);
       setArtist(song.artist.name);
       setAlbum(song.album.title);
-      setAlbumCover(song.album.cover_medium);
+      if (song.album.cover_medium.startsWith("http")) {
+        setAlbumCover(song.album.cover_medium);
+      } else {
+        setAlbumCover(
+          `${FileSystem.documentDirectory}${song.album.cover_medium}`
+        );
+      }
     }
   }, [song]);
 
@@ -229,6 +236,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     width: "100%",
+    marginTop: 16,
   },
   button: {
     paddingVertical: 9,

@@ -23,8 +23,10 @@ const AddInfoText = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.infoSubtitle}>
-        Pato currently knows {songCount} songs!
+      <Text>
+        <Text style={styles.infoSubtitle}>Pato currently knows </Text>
+        <Text style={styles.infoCount}>{songCount}</Text>
+        <Text style={styles.infoSubtitle}> songs!</Text>
       </Text>
     </View>
   );
@@ -41,12 +43,16 @@ const styles = StyleSheet.create({
     marginTop: 200,
   },
   infoText: {
-    color: "#FFFFFF",
+    color: "#b7adcf",
     fontSize: 20,
     marginBottom: 8,
   },
   infoSubtitle: {
-    color: "#A9A9A9",
-    fontSize: 19,
+    color: "#b7adcf",
+    fontSize: 15,
+  },
+  infoCount: {
+    color: "#09A9A9",
+    fontSize: 15,
   },
 });

@@ -82,7 +82,9 @@ export default function TabOneScreen() {
           </Text>
         </View>
 
-        <View style={{ height: 1, marginBottom: 32, width: "100%" }} />
+        <View style={styles.containerDivider}>
+          <View style={styles.divider} />
+        </View>
 
         <View style={styles.chipContainer}>
           <TouchableOpacity
@@ -204,8 +206,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingBottom: 16,
     paddingTop: 26,
-    borderBottomColor: "#b7adcf",
-    borderBottomWidth: 1,
   },
   titleText: {
     fontSize: 45,
@@ -224,6 +224,18 @@ const styles = StyleSheet.create({
   signText: {
     fontSize: 36,
     color: "#b7adcf",
+  },
+  containerDivider: {
+    alignItems: "center",
+    marginBottom: 16,
+    paddingHorizontal: 10,
+    width: "100%",
+  },
+  divider: {
+    height: 2,
+    backgroundColor: "#b7adcf",
+    marginBottom: 16,
+    width: "90%",
   },
   sortingContainer: {
     justifyContent: "center",

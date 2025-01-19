@@ -105,11 +105,28 @@ export default function AddScreen() {
 
   return (
     <View style={styles.container}>
+      <View style={styles.addTitle}>
+        <Text style={styles.titleText}>
+          <Text style={styles.andThisText}>and this </Text>
+          <Text style={styles.oneText}>one</Text>
+          <Text style={styles.signText}> ?</Text>
+        </Text>
+      </View>
+
+      <View style={styles.containerDivider}>
+        <View style={styles.divider} />
+      </View>
       <View style={styles.searchContainer}>
+        <MaterialIcons
+          name="search"
+          size={20}
+          color="#09a9a9"
+          style={styles.searchIcon}
+        />
         <TextInput
           style={styles.input}
           placeholder="Search by song, artist or album..."
-          placeholderTextColor="#b7adcf"
+          placeholderTextColor="#A9A9A9"
           value={query}
           onChangeText={handleInputChange}
           onSubmitEditing={searchSongs}
@@ -119,10 +136,6 @@ export default function AddScreen() {
             <MaterialIcons name="clear" size={20} color="#FFFFFF" />
           </TouchableOpacity>
         )}
-      </View>
-
-      <View style={styles.containerDivider}>
-        <View style={styles.divider} />
       </View>
 
       {loading && <ActivityIndicator size="large" color="#007AFF" />}
@@ -174,29 +187,56 @@ export default function AddScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#1C1C1E",
-    padding: 16,
+    backgroundColor: "#151718",
+    paddingHorizontal: 16,
+    paddingTop: 40,
+  },
+  addTitle: {
+    backgroundColor: "#151718",
+    width: "100%",
+    alignItems: "center",
+    paddingBottom: 16,
+    paddingTop: 26,
+  },
+  titleText: {
+    fontSize: 45,
+    fontWeight: "bold",
+  },
+  andThisText: {
+    color: "#b7adcf",
+    fontStyle: "normal",
+    fontVariant: ["small-caps"],
+  },
+  oneText: {
+    color: "#09A9A9",
+    fontStyle: "normal",
+    fontVariant: ["small-caps"],
+  },
+  signText: {
+    fontSize: 36,
+    color: "#b7adcf",
+  },
+  searchIcon: {
+    marginRight: 8,
   },
   searchContainer: {
     flexDirection: "row",
     alignItems: "center",
+    backgroundColor: "#2C2C2E",
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
     marginBottom: 16,
-    paddingTop: 50,
-    paddingHorizontal: 16,
   },
   input: {
     flex: 1,
-    backgroundColor: "#2C2C2E",
     color: "#FFFFFF",
-    borderRadius: 10,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
     fontSize: 16,
   },
   clearButton: {
     marginLeft: 8,
     backgroundColor: "#b7adcf",
-    padding: 11,
+    padding: 8,
     borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",
@@ -205,13 +245,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 16,
     paddingHorizontal: 10,
-    marginTop: 16,
+    width: "100%",
   },
   divider: {
     height: 2,
-    backgroundColor: "#09A9A9",
+    backgroundColor: "#b7adcf",
     marginBottom: 16,
-    width: "100%",
+    width: "98.5%",
   },
   resultItem: {
     flexDirection: "row",
